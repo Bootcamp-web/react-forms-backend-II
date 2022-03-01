@@ -1,42 +1,68 @@
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import styled from 'styled-components';
 
+const ErrorMessageText = styled.p`
+margin:0;
+color:red
+`;
+const FormFlex = styled.div`
+display:flex
+`;
+const FormElement = styled.div`
+display:flex;
+flex-direction: colum;
+margin:5px;
+`;
+const Error = ({ field, errors }) => {
+  if (errors[field]) {
+    return <ErrorMessageText>{errors[field].message}</ErrorMessageText>;
+  }
+  return <></>;
+};
 
 export const InputItem = ({ onAddItem })=>{
     
     const [item, setItem] = useState({name:'', quantity:1})
 
     const handleAddItem =()=>{
-            // console.log('Adding item');
-            // console.log(item);
-            onAddItem(item); 
-            setItem({ name: '', quantity: 1 });
+      onAddItem(item);   // viene del provider useIngredients.tsx
+      setItem({ name: '', quantity: 1 });
          
     }
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
     
+  } = useForm(
+    {
+      defaultValues: { name: '', quantity: 1 },
+    },
+  );
 
-    const handleChangeIngredient = (e:any) => {
-       
-        setItem({ ...item, name: e.target.value });
-        
-       
-    };
-
-    const handleChangeQuantity = (e:any) => {
-        if (e.target.value.length === 0) {
-          setItem({ ...item, quantity: e.target.value  });
-          return;
-        };
-        const newQuantity = parseInt(e.target.value, 10);
-       
-        if (newQuantity !== NaN) {
-          setItem({ ...item, quantity: newQuantity });
-        }
-    }   
-    return(
-        <div>
-          <input  value={item.name} placeholder='Ingredient' onChange={handleChangeIngredient}/>
-          <input  value={item.quantity} placeholder='Quantity'onChange={handleChangeQuantity}/>
-          <button  onClick={handleAddItem} type='button'>Add Item</button>
-        </div>
-    )
+  const submit = handleSubmit((data)=>{
+   
+    reset()
+  })
+  
+  return(
+    <div>
+      <FormFlex>
+        <FormElement>
+          <input placeholder='Ingredient' {...register('name', { required: 'Add an ingrendient' })}/>
+          <Error field="name" errors={errors}></Error>
+        </FormElement>
+        <FormElement>
+          <input placeholder='Quantity'{...register('quantity', { required: 'Add an quantity' })}/>
+          <Error field="quantity" errors={errors}></Error> 
+        </FormElement>
+        <FormElement>  
+          <button  onClick={ submit} type='button'>Add Item</button>
+        </FormElement>
+      </FormFlex>
+    </div>
+  )
 }

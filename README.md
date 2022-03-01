@@ -35,6 +35,8 @@ tsc --init
 ~~~
 npm init @eslint/config
 ~~~
+
+
 # 2 Creamos método post para añadir más ingredientes a la BBDD
 - Modificamos `api.ts` añadimos `addIngredient`
 ~~~ts
@@ -115,5 +117,112 @@ export const ShoppingList = ()=>{
             </div>      
         </div>
     )
+}
+~~~
+
+# 3 Instalamos en el front React hook form
+~~~
+npm install react-hook-form
+~~~
+
+Ahora hacemos limpieza en `InputItem.tsx`
+~~~tsx
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import styled from 'styled-components';
+
+const ErrorMessageText = styled.p`
+margin:0;
+color:red
+`;
+export const InputItem = ({ onAddItem })=>{
+    
+    const [item, setItem] = useState({name:'', quantity:1})
+
+    const handleAddItem =()=>{
+      onAddItem(item); 
+      setItem({ name: '', quantity: 1 });
+         
+    }
+
+
+    const {
+      register,
+      handleSubmit,
+      reset,
+      formState: { errors, isSubmitting },
+     
+    } = useForm(
+      {
+        defaultValues: { name: '', quantity: 1 },
+      },
+    );
+
+    const submit = handleSubmit((data)=>{
+      console.log(data)
+      reset()
+    })
+    console.log('errors',errors)
+    return(
+      <div>
+        <input placeholder='Ingredient' {...register('name', { required: 'Add an ingrendient' })}/>
+        <input placeholder='Quantity'{...register('quantity', { required: 'Add an quantity' })}/>
+        <button  onClick={ submit} type='button'>Add Item</button>
+      </div>
+    )
+}
+~~~
+
+- Creamos componente error dentro de  `InputItem.tsx`
+~~~tsx
+const ErrorMessageText = styled.p`
+margin:0;
+color:red
+`;
+
+const Error = ({ field, errors }) => {
+  if (errors[field]) {
+    return <ErrorMessageText>{errors[field].message}</ErrorMessageText>;
+  }
+  return <></>;
+};
+
+export const InputItem = ({ onAddItem })=>{
+    
+    const [item, setItem] = useState({name:'', quantity:1})
+
+    const handleAddItem =()=>{
+      onAddItem(item); 
+      setItem({ name: '', quantity: 1 });
+         
+    }
+
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+    
+  } = useForm(
+    {
+      defaultValues: { name: '', quantity: 1 },
+    },
+  );
+
+  const submit = handleSubmit((data)=>{
+   
+    reset()
+  })
+  
+  return(
+    <div>
+      <input placeholder='Ingredient' {...register('name', { required: 'Add an ingrendient' })}/>
+      <Error field="name" errors={errors}></Error>
+      <input placeholder='Quantity'{...register('quantity', { required: 'Add an quantity' })}/>
+      <Error field="quantity" errors={errors}></Error>
+      <button  onClick={ submit} type='button'>Add Item</button>
+    </div>
+  )
 }
 ~~~
