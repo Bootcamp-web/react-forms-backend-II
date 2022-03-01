@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {Item} from './Item'
 import {InputItem} from './InputItem'
 import { useIngredient } from '../lib/useIngredients';
-import { getIngredients } from '../lib/api';
+import { addIngredient, getIngredients } from '../lib/api';
 
 export const ShoppingList = ()=>{
  
@@ -14,12 +14,17 @@ export const ShoppingList = ()=>{
         });
     },[])
 
+    const saveOnServer = async (ingredientFormData: any) => {
+        const ing = await addIngredient(ingredientFormData);
+        addItem(ing);
+      };
+
     return(
 
         <div>
             {ingredients.map((it)=><Item  key={it._id} item={it}/>)}
             <div>
-                <InputItem onAddItem={addItem}/>
+                <InputItem onAddItem={saveOnServer}/>
             </div>      
         </div>
     )
