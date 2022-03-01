@@ -2,13 +2,9 @@
 
 0. [Viene de proyectos anteriores](#schema0)
 1. [Inicializamos NPM con instalamos paquetes necesarios y ejecutamos tsc](#schema1)
-1. [# 2 Modificamos estructura del proyecto y generamos node_modules para la parte general del proyecto.](#schema2)
-1. [ # 3 Modificamos lerna](#schema3)
-1. [ # 4 Configuramos `api`](#schema4)
-1. [ # 5 Creamos el `server.ts`, `config.ts` y `main_routers.ts`](#schema5)
-1. [ Modificamos `FullRecipe.tsx` para dejar solo el componente y ponemos la lógica en el contexto.](#schema6)
-1. [ Crearmos `ShoppingListManager` en `useIngredients.tsx` ](#schema7)
-1. [ Le ponemos estilos a `App.tsx`](#schema8)
+1. [Modificamos estructura del proyecto y generamos node_modules para la parte general del proyecto.](#schema2)
+1. [Instalamos en el front React hook form](#schema3)
+
 
 
 <hr>
@@ -36,6 +32,9 @@ tsc --init
 npm init @eslint/config
 ~~~
 
+<hr>
+
+<a name="schema2"></a>
 
 # 2 Creamos método post para añadir más ingredientes a la BBDD
 - Modificamos `api.ts` añadimos `addIngredient`
@@ -119,6 +118,11 @@ export const ShoppingList = ()=>{
     )
 }
 ~~~
+
+<hr>
+
+<a name="schema2"></a>
+
 
 # 3 Instalamos en el front React hook form
 ~~~
@@ -226,3 +230,4 @@ export const InputItem = ({ onAddItem })=>{
   )
 }
 ~~~
+
