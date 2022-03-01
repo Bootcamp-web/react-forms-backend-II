@@ -1,0 +1,40 @@
+{
+  "name": "react-forms-backend-i",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "lerna run dev --stream"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bootcamp-web/react-forms-backend-I.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bootcamp-web/react-forms-backend-I/issues"
+  },
+  "homepage": "https://github.com/Bootcamp-web/react-forms-backend-I#readme",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
+    "lerna": "^4.0.0",
+    "parcel": "^2.3.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "typescript": "^4.5.5"
+  },
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.13.0",
+    "@typescript-eslint/parser": "^5.13.0",
+    "eslint": "^8.10.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-react": "^7.29.2"
+  }
+}
