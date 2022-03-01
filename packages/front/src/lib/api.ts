@@ -13,3 +13,9 @@ export const addIngredient = async (data)=>{
   const res = await api.post('/ingredients',data)
   return res.data
 }
+
+export const deleteIngredient = async (ingid)=>{
+  const res = await api.get(`/ingredients/${ingid}/delete`)
+  return res.data
+}
+

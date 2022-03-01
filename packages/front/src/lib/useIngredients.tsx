@@ -1,39 +1,60 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getIngredients } from './api';
+import { deleteIngredient } from './api';
 
 export const IngredientsContext = React.createContext({});
 
-export const useIngredient = ()=>{
-    const { ingredients, addItem }= useContext(IngredientsContext)
+export const useIngredient = () => {
+  const { ingredients, addItem, removeItem } = useContext(IngredientsContext);
 
-  
-    const hasIngredient = (ing) => ingredients.filter((e) => e.ingredient === ing).length > 0;
+  const hasIngredient = (ing) => ingredients.filter((e) => e.name === ing).length > 0;
 
-    const getMissingIngredients=(recipe) => {
-        const completedIngredients =  recipe.filter((ingredient)=>ingredients.map((e)=>e.ingredient)
+  // Función que devuelve los missingingredients
+  const getMissingIngredients = (recipe) => {
+    const completedIngredients = recipe
+      .filter((ingredient) => ingredients.map((e) => e.name)
         .includes(ingredient));
 
-        const setRecipe = new Set(completedIngredients);
-        const missingIngredients = new Set([...recipe].filter((x) => !setRecipe.has(x)));
+    const setRecipe = new Set(completedIngredients);
+    const missingIngredients = new Set([...recipe].filter((x) => !setRecipe.has(x)));
 
-        return {
-            missingIngredients,
-            completed: completedIngredients.length ===recipe.lengt
-        }
-    }
+  
+    return {
+      missingIngredients,
+      completed: completedIngredients.length === recipe.length,
+    };
+  };
 
-    return { ingredients, addItem,hasIngredient,getMissingIngredients }
-}
+  const removeIngredient = async (id) => {
+    await deleteIngredient(id);
+    removeItem(id);
+  };
 
-export const ShoppingListManager = ({children}) =>{
-    const [items, setItems] = useState([]);
-    const addItem = (item)=>{
-        setItems((it) => [...it, item]);
-   }
-   return(
-    <IngredientsContext.Provider value={{ingredients: items,addItem}}>
-        {children}
+  return {
+    ingredients,
+    addItem,
+    hasIngredient,
+    getMissingIngredients,
+    removeIngredient,
+  };
+};
+
+export const ShoppingListManager = ({ children }) => {
+  console.log('children', children);
+  const [items, setItems] = useState([]);
+  const addItem = (item) => {
+
+    setItems((it) => [...it, item]);
+  };
+
+  const removeItem = (id) => {
+    setItems((item) => {
+      const newItems = item.filter(((it) => it._id !== id));
+      return newItems;
+    });
+  };
+  return (
+    <IngredientsContext.Provider value={{ ingredients: items, addItem, removeItem }}>
+      {children}
     </IngredientsContext.Provider>
-   )
-
-}
+  );
+};

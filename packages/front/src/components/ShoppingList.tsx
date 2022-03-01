@@ -1,31 +1,33 @@
-import React, { useEffect } from 'react';
-import {Item} from './Item'
-import {InputItem} from './InputItem'
+import React, { useEffect, useState } from 'react';
+import { Item } from './Item';
+import { InputItem } from './InputItem';
 import { useIngredient } from '../lib/useIngredients';
 import { addIngredient, getIngredients } from '../lib/api';
 
-export const ShoppingList = ()=>{
- 
-    const { addItem , ingredients } =useIngredient();
-    useEffect(()=>{
-        console.log("get ingredientes api")
-        getIngredients().then((ingredient)=>{
-            ingredient.forEach((ing)=>addItem(ing));
-        });
-    },[])
+export const ShoppingList = () => {
+  const { ingredients, addItem } = useIngredient();
 
-    const saveOnServer = async (ingredientFormData: any) => {
-        const ing = await addIngredient(ingredientFormData);
-        addItem(ing);
-      };
+  
+  useEffect(() => {
+   
+    getIngredients().then((ingredient) => {
+      ingredient.forEach((ing) => addItem(ing));
+    });
+  }, []);
 
-    return(
+  const saveOnServer = async (ingredientFormData) => {
+    const ing = await addIngredient(ingredientFormData);
+    addItem(ing);
+  };
 
-        <div>
-            {ingredients.map((it)=><Item  key={it._id} item={it}/>)}
-            <div>
-                <InputItem onAddItem={saveOnServer}/>
-            </div>      
-        </div>
-    )
-}
+  return (
+    <div>
+      <div>
+     
+        <InputItem onAddItem={saveOnServer} />
+      </div>
+      
+      {ingredients.map((it) => <Item key={it._id} item={it} />)}
+    </div>
+  );
+};

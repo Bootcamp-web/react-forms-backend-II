@@ -12,10 +12,10 @@ type Myrequest = FastifyRequest<{
 export const ingredients_router: FastifyPluginAsync = async (app) => {
   app.get('/', async () => {
 
-      const ingredients = await Ingredient.find().lean();
-      return ingredients;
-      
-    });
+    const ingredients = await Ingredient.find().lean();
+    return ingredients;
+    
+  });
     app.post('/', async (request:Myrequest, reply:FastifyReply) => {
       const {name,quantity}= request.body
       const ingredient = new Ingredient({name,quantity})
@@ -23,5 +23,12 @@ export const ingredients_router: FastifyPluginAsync = async (app) => {
       return ingredient;
       
     });
+  app.get('/:id/delete', async (request:Myrequest, reply:FastifyReply) => {
+
+    const {id} = request.params;
+    await Ingredient.findByIdAndDelete(id)
+    return {status: 'delete'}
+    
+  });
 };
 

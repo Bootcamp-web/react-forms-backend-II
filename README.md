@@ -231,3 +231,246 @@ export const InputItem = ({ onAddItem })=>{
 }
 ~~~
 
+# 5 LoadingSpinner
+- Instalar
+~~~
+npm install @mui/material @emotion/react @emotion/styled
+~~~
+~~~ts
+import React from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import styled from 'styled-components';
+import cx from 'classnames';
+import propTypes from 'prop-types';
+
+const LoadingOverlay = styled.div`
+	position: absolute;
+	flex-direction: column;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(2px);
+	&.activado {
+		opacity: 1;
+		pointer-events: auto;
+	}
+`;
+
+export const LoadingSpiner = ({
+  children,
+  isLoading,
+  loadingText = 'Loading',
+}) => (
+  <div style={{ position: 'relative', display: 'inline-block' }}>
+ 
+    {isLoading && (
+    <LoadingOverlay className={cx({ activado: isLoading })}>
+      {loadingText}
+      <div style={{ paddingBottom: 15 }} />
+      <CircularProgress />
+    </LoadingOverlay>
+    )}
+    <div>{children}</div>
+  </div>
+);
+
+// Valores por defecto del componente
+LoadingSpiner.defaultProps = {
+  isLoading: false,
+  children: undefined,
+  loadingText: '',
+};
+
+// node: componente de react
+LoadingSpiner.propTypes = {
+  isLoading: propTypes.bool,
+  children: propTypes.node,
+  loadingText: propTypes.string,
+};
+~~~
+- Añadir el spinner en `InputItem`
+~~~tsx
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import styled from 'styled-components';
+import { LoadingSpiner } from './LoadingSpinner';
+
+const FormFlex = styled.div`
+display:flex
+`;
+const FormElement = styled.div`
+display:flex;
+flex-direction: colum;
+margin:5px;
+`;
+
+const ErrorMessageText = styled.p`
+margin:0;
+color:red
+`;
+
+
+const timeout = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const Error = ({ field, errors }) => {
+  if (errors[field]) {
+    return <ErrorMessageText>{errors[field].message}</ErrorMessageText>;
+  }
+  return <></>;
+};
+
+export const InputItem = ({ onAddItem }) => {
+
+  const [item, setItem] = useState({ name: 'apples', quantity: 1 });
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+    watch,
+  } = useForm(
+    {
+      defaultValues: { name: '', quantity: 1 },
+    },
+  );
+
+  const submit = handleSubmit(async (data) => {
+    await timeout(2000);
+    await onAddItem(data);
+    reset();
+  });
+  const internalState = watch(); 
+
+  return (
+    <div>
+      <LoadingSpiner isLoading={isSubmitting}>
+        <div style={{ padding: '20px' }}>
+          <FormFlex>
+            <FormElement>
+              <input placeholder="Ingredient" {...register('name', { required: 'Add an ingrendient' })} />
+              <Error field="name" errors={errors} />
+            </FormElement>
+            <FormElement>
+              <input placeholder="" {...register('quantity', { required: 'Add quantity' })} />
+              <Error field="quantity" errors={errors} />
+            </FormElement>
+            <FormElement>
+              <button onClick={submit} type="button">Add item</button>
+            </FormElement>
+          </FormFlex>
+        </div>
+      </LoadingSpiner>
+    </div>
+  );
+};
+~~~
+
+# 6 Borrado de elementos
+- Modificamos `Item.tsx`
+~~~tsx
+import React from 'react';
+import styled from 'styled-components';
+import { useIngredient } from '../lib/useIngredients';
+
+const ItemWrap = styled.div`
+padding: 5px;
+border: 1px solid red;
+margin: 5px;
+display: flex;
+justify-content: space-between;
+`;
+
+export const Item = ({ item: { _id, name, quantity } }) => {
+  const { removeIngredient } = useIngredient();
+  const handleDelete = () => {
+    console.log(`delete ${_id}`);
+    removeIngredient(_id);
+  };
+  return (
+    <ItemWrap>
+      <div>
+        {' '}
+        {name}
+        {' '}
+        x
+        {' '}
+        {quantity}
+      </div>
+      <div>
+        <a href="#" onClick={(handleDelete)}>Delete</a>
+      </div>
+    </ItemWrap>
+  );
+};
+~~~
+- Modficamos `api.ts`
+~~~tsx
+import axios from 'axios';
+
+const apiBaseURL = 'http://localhost:3000';
+
+const api = axios.create({ baseURL: apiBaseURL });
+
+export const getIngredients = async () => {
+    const res = await api.get('/ingredients');
+    return res.data;
+};
+
+export const addIngredient = async (data)=>{
+  const res = await api.post('/ingredients',data)
+  return res.data
+}
+
+export const deleteIngredient = async (ingid)=>{
+  const res = await api.get(`/ingredients/${ingid}/delete`)
+  return res.data
+}
+
+~~~
+- Modificamos `ingredients_routers.ts`
+~~~ts
+import { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
+import { Ingredient } from '../models/Ingredient.model';
+
+
+type Myrequest = FastifyRequest<{
+  Body: {name: string, quantity: string};
+  Params: {id: string}
+}>
+
+
+export const ingredients_router: FastifyPluginAsync = async (app) => {
+  app.get('/', async () => {
+
+    const ingredients = await Ingredient.find().lean();
+    return ingredients;
+    
+  });
+    app.post('/', async (request:Myrequest, reply:FastifyReply) => {
+      const {name,quantity}= request.body
+      const ingredient = new Ingredient({name,quantity})
+      await ingredient.save()
+      return ingredient;
+      
+    });
+  app.get('/:id/delete', async (request:Myrequest, reply:FastifyReply) => {
+
+    const {id} = request.params;
+    await Ingredient.findByIdAndDelete(id)
+    return {status: 'delete'}
+    
+  });
+};
+
+
+~~~
+- Modificamos `useIngredients.tsx`
+~~~tsx
+
+~~~
